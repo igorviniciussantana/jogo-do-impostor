@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Impostor" />
+  <title>Impostor</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #111111;
+      --surface2: #1a1a1a;
+      --border: rgba(255,255,255,0.08);
+      --accent: #e8ff47;
+      --accent2: #ff4757;
+      --text: #f0f0f0;
+      --muted: rgba(240,240,240,0.4);
+      --card-radius: 20px;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    #app {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ─── SCREENS ─── */
+    .screen {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      padding: 32px 24px;
+      overflow-y: auto;
+      animation: fadeIn 0.35s ease;
+    }
+    .screen.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── HOME ─── */
+    #screen-home {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .home-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(232,255,71,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 50% at 80% 100%, rgba(255,71,87,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .home-grid {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .logo-block {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 60px;
+    }
+
+    .logo-eye {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 24px;
+      background: var(--accent);
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      animation: blink 4s infinite;
+    }
+
+    .logo-eye::after {
+      content: '';
+      width: 28px;
+      height: 28px;
+      background: var(--bg);
+      border-radius: 50%;
+    }
+
+    @keyframes blink {
+      0%, 92%, 100% { transform: scaleY(1); }
+      95% { transform: scaleY(0.05); }
+    }
+
+    .logo-title {
+      font-family: var(--font-display);
+      font-size: clamp(52px, 16vw, 80px);
+      letter-spacing: 6px;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .logo-sub {
+      margin-top: 10px;
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .btn-primary {
+      position: relative;
+      z-index: 1;
+      background: var(--accent);
+      color: #0a0a0a;
+      border: none;
+      border-radius: 100px;
+      padding: 18px 48px;
+      font-family: var(--font-display);
+      font-size: 22px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 0 40px rgba(232,255,71,0.2);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.96);
+      box-shadow: 0 0 20px rgba(232,255,71,0.15);
+    }
+
+    /* ─── SETUP ─── */
+    #screen-setup {
+      gap: 0;
+      background: var(--bg);
+    }
+
+    .setup-header {
+      margin-bottom: 28px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .back-btn:hover { color: var(--text); }
+
+    .setup-title {
+      font-family: var(--font-display);
+      font-size: 38px;
+      letter-spacing: 3px;
+      line-height: 1.1;
+    }
+
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    /* ─── PLAYERS ─── */
+    .players-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: 16px 20px;
+    }
+
+    .players-label {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .counter {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .counter-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, transform 0.1s;
+      font-family: var(--font-body);
+      line-height: 1;
+    }
+
+    .counter-btn:active { transform: scale(0.9); background: var(--border); }
+
+    .counter-val {
+      font-family: var(--font-display);
+      font-size: 28px;
+      width: 52px;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    /* ─── CATEGORIES ─── */
+    .categories-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 32px;
+      flex: 1;
+    }
+
+    .cat-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 14px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, transform 0.12s;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+    }
+
+    .cat-card:active { transform: scale(0.97); }
+
+    .cat-card.selected {
+      border-color: var(--accent);
+      background: rgba(232,255,71,0.06);
+    }
+
+    .cat-card.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .cat-emoji { font-size: 26px; }
+
+    .cat-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .cat-count {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .btn-start {
+      background: var(--accent);
+      color: #0a0a0a;
+      border: none;
+      border-radius: 100px;
+      padding: 18px;
+      font-family: var(--font-display);
+      font-size: 20px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.15s, opacity 0.2s;
+      margin-top: auto;
+    }
+
+    .btn-start:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .btn-start:not(:disabled):active { transform: scale(0.97); }
+
+    /* ─── REVEAL SCREENS ─── */
+    #screen-blank, #screen-reveal {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    #screen-blank {
+      background: #fff;
+    }
+
+    .blank-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .blank-player-tag {
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(0,0,0,0.25);
+      font-family: var(--font-body);
+    }
+
+    .blank-tap-hint {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tap-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid rgba(0,0,0,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulse-tap 2s infinite;
+    }
+
+    @keyframes pulse-tap {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.06); opacity: 0.7; }
+    }
+
+    .tap-icon {
+      font-size: 32px;
+    }
+
+    .tap-label {
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(0,0,0,0.3);
+    }
+
+    /* ─── REVEAL ─── */
+    #screen-reveal {
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .reveal-bg-impostor {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(255,71,87,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .reveal-bg-word {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(232,255,71,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .reveal-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 24px;
+      animation: revealIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes revealIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .reveal-player-tag {
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .reveal-role {
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .reveal-role.impostor-role { color: var(--accent2); }
+    .reveal-role.word-role { color: var(--accent); }
+
+    .reveal-word {
+      font-family: var(--font-display);
+      font-size: clamp(48px, 14vw, 72px);
+      letter-spacing: 4px;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .reveal-word.impostor-word { color: var(--accent2); }
+    .reveal-word.normal-word { color: var(--accent); }
+
+    .reveal-category {
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .reveal-tap-hint {
+      margin-top: 40px;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.2);
+      animation: fadeInDelay 1s ease 0.6s both;
+    }
+
+    @keyframes fadeInDelay {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* ─── END SCREEN ─── */
+    #screen-end {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .end-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 50% 40% at 30% 30%, rgba(232,255,71,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 70% 70%, rgba(255,71,87,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .end-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 24px;
+    }
+
+    .end-title {
+      font-family: var(--font-display);
+      font-size: 48px;
+      letter-spacing: 4px;
+      color: var(--text);
+    }
+
+    .end-sub {
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .impostor-reveal-card {
+      background: rgba(255,71,87,0.1);
+      border: 1px solid rgba(255,71,87,0.3);
+      border-radius: 20px;
+      padding: 24px 32px;
+      margin-bottom: 8px;
+    }
+
+    .impostor-reveal-label {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,71,87,0.7);
+      margin-bottom: 8px;
+    }
+
+    .impostor-reveal-name {
+      font-family: var(--font-display);
+      font-size: 36px;
+      letter-spacing: 2px;
+      color: var(--accent2);
+    }
+
+    .word-reveal-card {
+      background: rgba(232,255,71,0.06);
+      border: 1px solid rgba(232,255,71,0.2);
+      border-radius: 20px;
+      padding: 20px 32px;
+      margin-bottom: 32px;
+    }
+
+    .word-reveal-label {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(232,255,71,0.6);
+      margin-bottom: 8px;
+    }
+
+    .word-reveal-value {
+      font-family: var(--font-display);
+      font-size: 32px;
+      letter-spacing: 2px;
+      color: var(--accent);
+    }
+
+    .btn-play-again {
+      background: var(--accent);
+      color: #0a0a0a;
+      border: none;
+      border-radius: 100px;
+      padding: 16px 40px;
+      font-family: var(--font-display);
+      font-size: 20px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: transform 0.15s;
+      margin-bottom: 12px;
+    }
+
+    .btn-play-again:active { transform: scale(0.97); }
+
+    .btn-home {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 14px 36px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--muted);
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .btn-home:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+    /* ─── SAFE AREA ─── */
+    .screen { padding-bottom: max(32px, env(safe-area-inset-bottom)); }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME -->
+  <div id="screen-home" class="screen active">
+    <div class="home-bg"></div>
+    <div class="home-grid"></div>
+    <div class="logo-block">
+      <div class="logo-eye"></div>
+      <div class="logo-title">IMPOSTOR</div>
+      <div class="logo-sub">Quem é o infiltrado?</div>
+    </div>
+    <button class="btn-primary" onclick="showSetup()">NOVO JOGO</button>
+  </div>
+
+  <!-- SETUP -->
+  <div id="screen-setup" class="screen">
+    <div class="setup-header">
+      <button class="back-btn" onclick="showHome()">← Voltar</button>
+      <div class="setup-title">CONFIGURAR<br>JOGO</div>
+    </div>
+
+    <div class="section-label" style="margin-bottom:14px">Jogadores</div>
+    <div class="players-row">
+      <span class="players-label">Quantos vão jogar?</span>
+      <div class="counter">
+        <button class="counter-btn" onclick="changeCount(-1)">−</button>
+        <div class="counter-val" id="count-display">4</div>
+        <button class="counter-btn" onclick="changeCount(1)">+</button>
+      </div>
+    </div>
+
+    <div class="section-label">Categorias</div>
+    <div class="categories-grid" id="cat-grid"></div>
+
+    <button class="btn-start" id="btn-start" onclick="startGame()" disabled>INICIAR JOGO</button>
+  </div>
+
+  <!-- TELA BRANCA (entre jogadores) -->
+  <div id="screen-blank" class="screen" onclick="handleBlankTap()">
+    <div class="blank-content">
+      <div class="blank-player-tag" id="blank-player-label"></div>
+      <div class="blank-tap-hint">
+        <div class="tap-circle">
+          <span class="tap-icon">👆</span>
+        </div>
+        <div class="tap-label" style="color:rgba(0,0,0,0.3)">Toque para revelar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVEAL -->
+  <div id="screen-reveal" class="screen" onclick="handleRevealTap()">
+    <div id="reveal-bg-layer"></div>
+    <div class="reveal-content">
+      <div class="reveal-player-tag" id="reveal-player-tag"></div>
+      <div class="reveal-role" id="reveal-role"></div>
+      <div class="reveal-word" id="reveal-word"></div>
+      <div class="reveal-category" id="reveal-category"></div>
+      <div class="reveal-tap-hint" id="reveal-tap-hint"></div>
+    </div>
+  </div>
+
+  <!-- END -->
+  <div id="screen-end" class="screen">
+    <div class="end-bg"></div>
+    <div class="end-content">
+      <div class="end-title">HORA DE<br>DESCOBRIR</div>
+      <div class="end-sub">Todos receberam as palavras</div>
+      <div class="impostor-reveal-card">
+        <div class="impostor-reveal-label">Impostor era o jogador</div>
+        <div class="impostor-reveal-name" id="end-impostor-name"></div>
+      </div>
+      <div class="word-reveal-card">
+        <div class="word-reveal-label">A palavra da rodada era</div>
+        <div class="word-reveal-value" id="end-word"></div>
+      </div>
+      <button class="btn-play-again" onclick="playAgain()">JOGAR DE NOVO</button>
+      <button class="btn-home" onclick="showHome()">Voltar ao início</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ─── DATA ───────────────────────────────────────────────
+  const CATEGORIES = [
+    {
+      id: 'filmes', name: 'Filmes', emoji: '🎬',
+      words: ['Titanic','Matrix','Avatar','Inception','Gladiador','Interstellar','Pantera Negra','Coringa','Parasita','Vingadores','La La Land','Forrest Gump','O Rei Leão','Star Wars','Jurassic Park','Harry Potter','Senhor dos Anéis','O Poderoso Chefão','Pulp Fiction','Toy Story']
+    },
+    {
+      id: 'carros', name: 'Carros', emoji: '🚗',
+      words: ['Ferrari','Porsche','Lamborghini','Mustang','Civic','Corolla','Golf','Fusca','Kombi','Jeep','BMW','Mercedes','Audi','Tesla','Dodge','Subaru','Fiat','Chevrolet','Hyundai','Volvo']
+    },
+    {
+      id: 'comidas', name: 'Comidas', emoji: '🍕',
+      words: ['Pizza','Sushi','Hambúrguer','Lasanha','Churrasco','Ramen','Tapioca','Feijoada','Brigadeiro','Coxinha','Pastel','Açaí','Frango','Macarrão','Salada','Crepe','Fondue','Paella','Yakisoba','Pão de Queijo']
+    },
+    {
+      id: 'paises', name: 'Países', emoji: '🌍',
+      words: ['Brasil','Japão','França','Itália','Estados Unidos','Alemanha','Portugal','Argentina','Rússia','China','Índia','México','Canadá','Austrália','Espanha','Coreia','Egito','África do Sul','Turquia','Grécia']
+    },
+    {
+      id: 'esportes', name: 'Esportes', emoji: '⚽',
+      words: ['Futebol','Basquete','Tênis','Natação','Vôlei','Surf','MMA','Ciclismo','Boxe','Ginástica','Golfe','Handebol','Skate','Judô','Atletismo','Remo','Hipismo','Rugby','Beisebol','Badminton']
+    },
+    {
+      id: 'animais', name: 'Animais', emoji: '🦁',
+      words: ['Leão','Tubarão','Elefante','Gorila','Pinguim','Cobra','Lobo','Aguia','Polvo','Tigre','Rinoceronte','Jacaré','Baleia','Golfinho','Panda','Urso','Raposa','Chita','Hipopótamo','Canguru']
+    },
+    {
+      id: 'musica', name: 'Músicas', emoji: '🎵',
+      words: ['Funk','Samba','Rock','Forró','MPB','Jazz','Pop','Hip Hop','Bossa Nova','Axé','Metal','Classical','Reggae','Blues','Indie','K-Pop','Eletrônico','Country','Gospel','Soul']
+    },
+    {
+      id: 'profissoes', name: 'Profissões', emoji: '👨‍⚕️',
+      words: ['Médico','Advogado','Professor','Bombeiro','Engenheiro','Policial','Chef','Piloto','Astronauta','Jornalista','Arquiteto','Psicólogo','Fotógrafo','Mecânico','Dentista','Enfermeiro','Designer','Veterinário','Programador','Ator']
+    },
+    {
+      id: 'tecnologia', name: 'Tecnologia', emoji: '💻',
+      words: ['iPhone','Android','Netflix','Instagram','Google','PlayStation','Nintendo','YouTube','TikTok','Spotify','Amazon','Uber','WhatsApp','Zoom','Twitter','Laptop','Tablet','Drone','Robô','Inteligência Artificial']
+    },
+    {
+      id: 'lugares', name: 'Lugares', emoji: '🏖️',
+      words: ['Praia','Montanha','Shopping','Academia','Hospital','Aeroporto','Museu','Restaurante','Parque','Cinema','Estádio','Biblioteca','Boate','Hotel','Escola','Igreja','Supermercado','Floresta','Deserto','Ilha']
+    },
+  ];
+
+  // ─── STATE ───────────────────────────────────────────────
+  let playerCount = 4;
+  let selectedCats = new Set();
+  let gameOrder = [];
+  let currentPlayerIndex = 0;
+  let impostorIndex = -1;
+  let currentWord = '';
+  let currentCategoryName = '';
+  let phase = 'blank'; // blank | reveal
+
+  // ─── NAVIGATION ─────────────────────────────────────────
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+  }
+  function showHome() { showScreen('home'); }
+  function showSetup() { buildCatGrid(); showScreen('setup'); }
+
+  // ─── SETUP ──────────────────────────────────────────────
+  function buildCatGrid() {
+    const grid = document.getElementById('cat-grid');
+    grid.innerHTML = '';
+    CATEGORIES.forEach(cat => {
+      const card = document.createElement('div');
+      card.className = 'cat-card' + (selectedCats.has(cat.id) ? ' selected' : '');
+      card.innerHTML = `
+        <span class="cat-emoji">${cat.emoji}</span>
+        <span class="cat-name">${cat.name}</span>
+        <span class="cat-count">${cat.words.length} palavras</span>
+      `;
+      card.onclick = () => toggleCat(cat.id, card);
+      grid.appendChild(card);
+    });
+    updateStartBtn();
+  }
+
+  function toggleCat(id, el) {
+    if (selectedCats.has(id)) {
+      selectedCats.delete(id);
+      el.classList.remove('selected');
+    } else {
+      selectedCats.add(id);
+      el.classList.add('selected');
+    }
+    updateStartBtn();
+  }
+
+  function updateStartBtn() {
+    document.getElementById('btn-start').disabled = selectedCats.size === 0;
+  }
+
+  function changeCount(delta) {
+    playerCount = Math.max(3, Math.min(12, playerCount + delta));
+    document.getElementById('count-display').textContent = playerCount;
+  }
+
+  // ─── GAME LOGIC ──────────────────────────────────────────
+  function startGame() {
+    // Build word pool from selected categories
+    const pool = [];
+    CATEGORIES.forEach(cat => {
+      if (selectedCats.has(cat.id)) {
+        cat.words.forEach(w => pool.push({ word: w, category: cat.name }));
+      }
+    });
+
+    // Pick random word
+    const picked = pool[Math.floor(Math.random() * pool.length)];
+    currentWord = picked.word;
+    currentCategoryName = picked.category;
+
+    // Build shuffled player order
+    gameOrder = Array.from({ length: playerCount }, (_, i) => i + 1);
+    shuffle(gameOrder);
+
+    // Pick random impostor
+    impostorIndex = Math.floor(Math.random() * playerCount);
+
+    currentPlayerIndex = 0;
+    phase = 'blank';
+    showBlank();
+  }
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+
+  function showBlank() {
+    const playerNum = gameOrder[currentPlayerIndex];
+    document.getElementById('blank-player-label').textContent = `Jogador ${playerNum}`;
+    showScreen('blank');
+  }
+
+  function handleBlankTap() {
+    phase = 'reveal';
+    showReveal();
+  }
+
+  function showReveal() {
+    const playerNum = gameOrder[currentPlayerIndex];
+    const isImpostor = currentPlayerIndex === impostorIndex;
+    const isLast = currentPlayerIndex === playerCount - 1;
+
+    document.getElementById('reveal-player-tag').textContent = `Jogador ${playerNum}`;
+
+    const bgLayer = document.getElementById('reveal-bg-layer');
+    const roleEl = document.getElementById('reveal-role');
+    const wordEl = document.getElementById('reveal-word');
+    const catEl = document.getElementById('reveal-category');
+    const hintEl = document.getElementById('reveal-tap-hint');
+
+    if (isImpostor) {
+      bgLayer.className = 'reveal-bg-impostor';
+      roleEl.className = 'reveal-role impostor-role';
+      roleEl.textContent = '⚠ Você é o Impostor';
+      wordEl.className = 'reveal-word impostor-word';
+      wordEl.textContent = '???';
+      catEl.textContent = '';
+    } else {
+      bgLayer.className = 'reveal-bg-word';
+      roleEl.className = 'reveal-role word-role';
+      roleEl.textContent = '● Sua palavra';
+      wordEl.className = 'reveal-word normal-word';
+      wordEl.textContent = currentWord;
+      catEl.textContent = `Tema: ${currentCategoryName}`;
+    }
+
+    if (isLast) {
+      hintEl.textContent = 'Toque para ver o resultado';
+    } else {
+      hintEl.textContent = 'Toque para passar ao próximo';
+    }
+
+    showScreen('reveal');
+  }
+
+  function handleRevealTap() {
+    const isLast = currentPlayerIndex === playerCount - 1;
+    if (isLast) {
+      showEnd();
+    } else {
+      currentPlayerIndex++;
+      phase = 'blank';
+      showBlank();
+    }
+  }
+
+  function showEnd() {
+    const impostorPlayerNum = gameOrder[impostorIndex];
+    document.getElementById('end-impostor-name').textContent = `Jogador ${impostorPlayerNum}`;
+    document.getElementById('end-word').textContent = currentWord;
+    showScreen('end');
+  }
+
+  function playAgain() {
+    startGame();
+  }
+</script>
+</body>
+</html>
